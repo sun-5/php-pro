@@ -5,15 +5,15 @@
 ### phpMyadmin 创建本地数据库 bbs
 #### 图形化直接创建数据库表
 #### sql语句创建
--  CREATE TABLE 'message'(
-    'id' tinyint(5) NOT NULL AUTO_INCREMENT,
-    'user' varchar(25) NOT NULL,
-    'title' varchar(50) NOT NULL,
-    'content' tinytext NOT NULL,
-    'lastdate' timestmap NOT NULL,
-    PRIMARY KEY('id')
-)ENGINE InnoDB DEFAULT CHARSET=utf8
-AUTO_INCREMENT=1;
+-  CREATE TABLE 'message'(<br/>
+    'id' tinyint(5) NOT NULL AUTO_INCREMENT, <br/>
+    'user' varchar(25) NOT NULL,<br/>
+    'title' varchar(50) NOT NULL,<br/>
+    'content' tinytext NOT NULL,<br/>
+    'lastdate' timestmap NOT NULL,<br/>
+    PRIMARY KEY('id')<br/>
+)ENGINE InnoDB DEFAULT CHARSET=utf8<br/>
+AUTO_INCREMENT=1;<br/>
 
 ### add.html  评论页面
 
