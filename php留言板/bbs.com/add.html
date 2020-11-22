@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>留言板提交</title>
+    <link rel="stylesheet" href="./layui/css/layui.css">
+</head>
+
+<body style="padding-top: 100px;">
+
+    <table class="layui-hide" id="test" lay-filter="test"></table>
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-sm" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</a>
+    </script>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button type="submit" class="layui-btn" lay-submit="" lay-filter="demo1">查看留言</button>
+        </div>
+    </div>
+    <form class="layui-form" method='POST' action="add.php">
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户</label>
+            <div class="layui-input-block">
+                <input type="text" name="user" lay-verify="user" autocomplete="off" placeholder="请输入用户名"
+                    class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">标题</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入标题"
+                    class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">内容</label>
+            <div class="layui-input-block">
+                <textarea placeholder="请输入内容" class="layui-textarea layui-hide" name="content" lay-verify="content"
+                    id="LAY_demo_editor"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button type="submit" class="layui-btn" lay-submit="" lay-filter="demo1">发布留言</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+    <div id='tip'
+        style="display: none;width: 200px;height: 200px;position: fixed;top: 200px;left:500px;background-color: blueviolet;">
+        提交成功！
+    </div>
+    <script src="./layui/layui.js"></script>
+    <script src="https://s3.pstatp.com/cdn/expire-1-M/jquery/3.3.1/jquery.min.js"></script>
+    <script src="jquery.form.js"></script>
+    <script>
+        var options = {
+            url: 'add.php', //form提交数据的地址
+            type: 'POST', //form提交的方式(method:post/get)
+            target: '.layui-form', //服务器返回的响应数据显示的元素(Id)号
+            beforeSerialize: function () {}, //序列化提交数据之前的回调函数
+            beforeSubmit: function () {}, //提交前执行的回调函数
+            success: function () {
+                $('#tip').fadeIn('500');
+                alert('提交成功！');
+                location.reload();
+            }, //提交成功后执行的回调函数
+            error: function () {}, //提交失败执行的函数
+            dataType: 'json', //服务器返回数据类型
+            clearForm: true, //提交成功后是否清空表单中的字段值
+            restForm: true, //提交成功后是否重置表单中的字段值，即恢复到页面加载时的状态
+            timeout: 1000 //设置请求时间，超过该时间后，自动退出请求，单位(毫秒)。　　
+
+        }
+
+        //ajaxForm
+        $(function () {
+            $(".layui-form").ajaxForm(()=>location.reload()) //可以监听layui提交 验证规则  引入options不会执行success
+        })
+
+        //ajaxSubmit
+        // $(function () {
+        //     $('button[type="submit"]').click(function () {
+        //         $(".layui-form").ajaxSubmit(options)
+        //          return false;   
+        //     })
+        // })
+
+
+        layui.use(['form', 'layedit', 'laydate', 'table'], function () {
+            var form = layui.form,
+                layer = layui.layer,
+                layedit = layui.layedit,
+                laydate = layui.laydate;
+
+
+
+            //日期
+            laydate.render({
+                elem: '#date'
+            });
+            laydate.render({
+                elem: '#date1'
+            });
+
+            //创建一个编辑器
+            var editIndex = layedit.build('LAY_demo_editor');
+
+            //自定义验证规则
+            form.verify({
+                title: function (value) {
+                    if (value.length < 5) {
+                        return '标题至少得5个字符啊';
+                    }
+                },
+                user: function (value) {
+                    if (value.length < 3) {
+                        return '用户名至少得3个字符啊';
+                    }
+                },
+                pass: [
+                    /^[\S]{6,12}$/, '密码必须6到12位，且不能出现空格'
+                ],
+                content: function (value) {
+                    layedit.sync(editIndex);
+                }
+            });
+
+            var table = layui.table;
+
+            table.render({
+                elem: '#test',
+                url: 'message.php',
+                page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
+                    layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
+                        ,
+                    curr: 1 //设定初始在第 5 页
+                        ,
+                    limit: 10, //一页显示多少条
+                    groups: 5
+                },
+                parseData: function (res) {
+                    console.log(res);
+                    var current_pages;
+                    //第一次显示的时候this.page=true，把这种情况单独列出
+                    if (this.page === true) current_pages = 1;
+                    else current_pages = this.page.curr;
+                    //根据分页要求选出需要显示的数据
+                    var data = res.slice(this.limit * (current_pages - 1), this.limit *
+                        current_pages);
+                    return {
+                        "code": 0,
+                        "msg": res.msg,
+                        "count": res.length,
+                        "data": data
+                    }
+                },
+                cellMinWidth: 80, //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+                cols: [
+                    [{
+                        field: 'id',
+                        width: 80,
+                        title: 'ID',
+                        sort: true
+                    }, {
+                        field: 'user',
+                        width: 80,
+                        title: '用户名'
+                    }, {
+                        field: 'title',
+                        width: 250,
+                        title: '标题'
+                    }, {
+                        field: 'content',
+
+                        title: '评论内容'
+                    }, {
+                        field: 'lastdate',
+                        width: 250,
+                        title: '评论时间',
+                        sort: true
+                    }, {
+                        fixed: 'right',
+                        title: '操作',
+                        toolbar: '#barDemo',
+                        width: 200
+                    }]
+                ]
+            });
+            //监听行工具事件
+            table.on('tool(test)', function (obj) {
+                var data = obj.data;
+                console.log(obj)
+                if (obj.event === 'del') {
+                    console.log('删除')
+                    layer.confirm('真的删除行么', function (index) {
+                        obj.del();
+                        layer.close(index);
+                        $.ajax({
+                            url: "del.php",
+                            data: {
+                                id: obj.data.id
+                            },
+                            success: function (data) {
+
+
+                            }
+                        });
+                    });
+
+                } else if (obj.event === 'edit') {
+                    console.log('编辑')
+                    layer.prompt({
+                        formType: 2,
+                        value: data.email
+                    }, function (value, index) {
+                        obj.update({
+                            email: value
+                        });
+                        layer.close(index);
+                    });
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>
