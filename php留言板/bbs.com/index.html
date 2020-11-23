@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>留言板主页</title>
+    <link rel="stylesheet" href="./layui/css/layui.css">
+    <style>
+        .layui-table-view {
+            margin: 20px 20px 50px;
+            min-height: 440px;
+        }
+
+
+        .page {
+            display: block;
+            margin: 0 auto;
+            width: 370px;
+        }
+
+        .page::after {
+            display: block;
+            content: '';
+            clear: both;
+        }
+
+        .page a {
+            display: block;
+            cursor: pointer;
+            float: left;
+            padding: 0 10px;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .page a em {
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        .total em {
+            font-weight: bold;
+            font-style: normal;
+        }
+    </style>
+</head>
+
+<body style="padding-top: 50px;">
+
+    <table class="layui-hide" id="test" lay-filter="test"></table>
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-sm" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</a>
+    </script>
+    <div class="page">
+        <a class="index">首页</a>
+        <a class="pre">上一页</a>
+        <a class="now">当前第<em>0</em>页</a>
+        <a class="next">下一页</a>
+        <a class="last">尾页</a>
+        <a class="pages">共<em>0</em>页</a>
+    </div>
+    <div style="width: 50px;margin: 5px auto;">
+        <a class="total">共<em>0</em>条</a>
+    </div>
+    <div id='tip'
+        style="display: none;width: 200px;height: 200px;position: fixed;top: 200px;left:500px;background-color: blueviolet;">
+        提交成功！
+    </div>
+    <script src="./layui/layui.js"></script>
+    <script src="https://s3.pstatp.com/cdn/expire-1-M/jquery/3.3.1/jquery.min.js"></script>
+    <script src="jquery.form.js"></script>
+    <script>
+        var pageid = 1; //默认第二页
+        var pageNow, pages; //当前页码数字
+        $(function () {
+            ajax(pageid)
+            var tableData = {};
+            $('.index').click(function () {
+                pageid = 1;
+                ajax(pageid)
+            })
+            $('.pre').click(function () {
+                pageNow = Number($('.now em').html()) //当前页码数字
+                console.log(pageNow)
+                pageid = (pageNow - 1) > 0 ? (pageNow - 1) : 1;
+                console.log(pageid)
+                ajax(pageid)
+            })
+            $('.next').click(function () {
+                pageNow = Number($('.now em').html()) //当前页码数字
+                console.log(pageNow)
+                pageid = (pageNow + 1) <= pages ? (pageNow + 1) : pages;
+                console.log(pageid)
+                ajax(pageid)
+            })
+            $('.last').click(function () {
+                pageid = pages;
+                ajax(pageid)
+            })
+
+            function ajax() {
+                $.ajax({
+                    url: 'page.php?pageid=' + pageid,
+                    method: 'get',
+                    success: function (res) {
+                        var data = JSON.parse(res);
+                        tableData = JSON.parse(res);
+                        pages = data.pages;
+                        $('.now em').html(pageid);
+                        $('.pages em').html(data.pages);
+                        $('.total em').html(data.total);
+                        layui.use(['form', 'layedit', 'laydate', 'table'], function () {
+                            var form = layui.form,
+                                layer = layui.layer,
+                                layedit = layui.layedit,
+                                laydate = layui.laydate;
+
+                            var table = layui.table;
+
+                            table.render({
+                                elem: '#test',
+                                // url: 'page.php?pageid=' + pageid,
+                                page: false,
+                                data: tableData.data,
+                                // parseData: function (tableData) {
+                                //     // console.log(res);
+                                //     return {
+                                //         "code": 0,
+                                //         "msg": tableData.msg,
+                                //         "count": tableData.length,
+                                //         "data": tableData.data
+                                //     }
+                                // },
+                                cellMinWidth: 80, //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+                                cols: [
+                                    [{
+                                        field: 'id',
+                                        width: 80,
+                                        title: 'ID',
+                                        sort: true
+                                    }, {
+                                        field: 'user',
+                                        width: 80,
+                                        title: '用户名'
+                                    }, {
+                                        field: 'title',
+                                        width: 200,
+                                        title: '标题'
+                                    }, {
+                                        field: 'content',
+
+                                        title: '评论内容'
+                                    }, {
+                                        field: 'lastdate',
+                                        width: 250,
+                                        title: '评论时间',
+                                        sort: true
+                                    }, {
+                                        fixed: 'right',
+                                        title: '操作',
+                                        toolbar: '#barDemo',
+                                        width: 200
+                                    }]
+                                ]
+                            });
+
+                            //分页渲染
+
+
+                            //监听行工具事件
+                            table.on('tool(test)', function (obj) {
+                                var data = obj.data;
+                                console.log(obj)
+                                if (obj.event === 'del') {
+                                    console.log('删除')
+                                    layer.confirm('真的删除行么', function (index) {
+                                        obj.del();
+                                        layer.close(index);
+                                        $.ajax({
+                                            url: "del.php",
+                                            data: {
+                                                id: obj.data.id
+                                            },
+                                            success: function (
+                                                data) {
+
+
+                                            }
+                                        });
+                                    });
+
+                                } else if (obj.event === 'edit') {
+                                    console.log('编辑')
+                                    layer.prompt({
+                                        formType: 2,
+                                        value: data.email
+                                    }, function (value, index) {
+                                        obj.update({
+                                            email: value
+                                        });
+                                        layer.close(index);
+                                    });
+                                }
+                            });
+                        });
+                    }
+                })
+            }
+        })
+    </script>
+
+</body>
+
+</html>

@@ -6,20 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>留言板提交</title>
     <link rel="stylesheet" href="./layui/css/layui.css">
+    <style>
+        .layui-table-view{margin: 20px 20px 50px;}
+    </style>
 </head>
 
-<body style="padding-top: 100px;">
-
-    <table class="layui-hide" id="test" lay-filter="test"></table>
-    <script type="text/html" id="barDemo">
-        <a class="layui-btn layui-btn-sm" lay-event="edit">编辑</a>
-        <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</a>
-    </script>
-    <div class="layui-form-item">
-        <div class="layui-input-block">
-            <button type="submit" class="layui-btn" lay-submit="" lay-filter="demo1">查看留言</button>
-        </div>
-    </div>
+<body style="padding-top: 50px;">
     <form class="layui-form" method='POST' action="add.php">
         <div class="layui-form-item">
             <label class="layui-form-label">用户</label>
@@ -50,6 +42,11 @@
             </div>
         </div>
     </form>
+    <table class="layui-hide" id="test" lay-filter="test"></table>
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-sm" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</a>
+    </script>
     <div id='tip'
         style="display: none;width: 200px;height: 200px;position: fixed;top: 200px;left:500px;background-color: blueviolet;">
         提交成功！
@@ -79,7 +76,7 @@
 
         //ajaxForm
         $(function () {
-            $(".layui-form").ajaxForm(()=>location.reload()) //可以监听layui提交 验证规则  引入options不会执行success
+            $(".layui-form").ajaxForm(() => location.reload()) //可以监听layui提交 验证规则  引入options不会执行success
         })
 
         //ajaxSubmit
@@ -172,7 +169,7 @@
                         title: '用户名'
                     }, {
                         field: 'title',
-                        width: 250,
+                        width: 200,
                         title: '标题'
                     }, {
                         field: 'content',
