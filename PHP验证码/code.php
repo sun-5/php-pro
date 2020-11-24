@@ -16,14 +16,16 @@ for($i=0;$i<4;$i++){//4个字符
    // $fontcontent = rand(0,9);//0-9数字
     $data = "abcdefghijklmnopqrstuvwxyz0123456789";
     $fontcontent = substr($data,rand(0,strlen($data)),1);//返回字符串一部分 字符串，截取位置0-字符串长度，截取一个字符 
-    $captch_code .= "$fontcontent";//将取出的数据合取到captch_code中
+    $captch_arr[$i]= $fontcontent;//将取出的数据合取到captch_code中
     $x = ($i*300/4)+rand(35,55);//字符位置x轴
     $y =rand(35,55); //字符位置y轴
     //imagestring($image,$fontsize,$x,$y,$fontcontent,$fontcolor); //水平显示一行字符串
-    $fontpath = realpath('./font/FiraCode.otf'); //引入字体 字体大小 超过5
+    $fontpath = realpath('./font/FiraCode.ttf'); //引入字体 字体大小 超过5
     imagefttext($image, $fontsize ,0, $x,$y,$fontcolor, $fontpath,$fontcontent);   
 }
-
+foreach($captch_arr as $key=>$val){
+    $capth_code.=$val.''; //合并数组 为 字符串
+}
 $_SESSION["code"] =  $capth_code;//把得到的字符存储到session中
 
 for($i=0;$i<200;$i++){//增加像素点

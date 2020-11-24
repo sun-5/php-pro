@@ -3,18 +3,18 @@
 ## 创建所需的php文件 
 ## 创建本地站点bbs.com，放入对应的文件
 
-### phpMyadmin 创建本地数据库 bbs
-#### 图形化直接创建数据库表 message
+### phpMyadmin 创建本地数据库 库名 liuyan
+#### 图形化直接创建数据库表 表名message
 #### sql语句创建
--  CREATE TABLE 'message'(<br/>
-    'id' tinyint(5) NOT NULL AUTO_INCREMENT, <br/>
-    'user' varchar(25) NOT NULL,<br/>
-    'title' varchar(50) NOT NULL,<br/>
-    'content' tinytext NOT NULL,<br/>
-    'lastdate' timestmap NOT NULL,<br/>
-    PRIMARY KEY('id')<br/>
-)ENGINE InnoDB DEFAULT CHARSET=utf8<br/>
-AUTO_INCREMENT=1;<br/>
+-  CREATE TABLE `message`(  <br>
+  `id` tinyint(5) NOT NULL AUTO_INCREMENT,  <br>
+    `user` varchar(25) NOT NULL,  <br>
+    `title` varchar(50) NOT NULL,  <br>
+    `content` tinytext NOT NULL,  <br>
+    `lastdate` timestamp NOT NULL,  <br>
+    PRIMARY KEY(`id`)  <br>
+)ENGINE InnoDB DEFAULT CHARSET=utf8  <br>
+AUTO_INCREMENT=1;  <br>
 
 ### add.html  评论页面
 
